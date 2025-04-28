@@ -70,6 +70,7 @@ export const handler = async (event, context, callback) => {
 
   let response;
   console.log("***** event: ", event);
+  console.log("***** event: ", event);
 
   if (event.resource) {
     console.log(event.requestContext.authorizer.claims);
