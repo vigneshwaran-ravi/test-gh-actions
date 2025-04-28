@@ -1,0 +1,82 @@
+name: Deploy Lambda Functions
+
+on:
+  push:
+    branches:
+      - main # or your default branch
+    paths:
+      - "**/*.js" # Only trigger on JS file changes
+      - "**/*.json" # Include package.json changes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2 # Fetch last 2 commits to detect changes
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-souteast-2
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          echo "changed_files<<EOF" >> $GITHUB_ENV
+          echo "$CHANGED_FILES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Deploy changed Lambda functions
+        run: |
+          # Function to deploy a Lambda
+          deploy_lambda() {
+            local dir=$1
+            local function_name=$(basename $dir)
+            
+            echo "Deploying $function_name..."
+            
+            # Install dependencies if package.json exists
+            if [ -f "$dir/package.json" ]; then
+              cd $dir
+              npm install --production
+              cd ..
+            fi
+            
+            # Create ZIP file
+            zip -r function.zip $dir/*
+            
+            # Update Lambda function
+            aws lambda update-function-code \
+              --function-name $function_name \
+              --zip-file fileb://function.zip
+              
+            rm function.zip
+          }
+
+          # Process each changed file
+          processed_dirs=()
+          while IFS= read -r file; do
+            if [[ $file == *".js" || $file == *"package.json" ]]; then
+              # Get the directory containing the changed file
+              dir=$(dirname "$file")
+              
+              # Only deploy if it's a Lambda function directory and hasn't been processed
+              if [ -f "$dir/index.js" ] && [[ ! " ${processed_dirs[@]} " =~ " ${dir} " ]]; then
+                processed_dirs+=("$dir")
+                deploy_lambda "$dir"
+              fi
+            fi
+          done <<< "$changed_files"
