@@ -32,6 +32,7 @@ const docClient = DynamoDBDocumentClient.from(dynamoClient, translateConfig);
 
 export const handler = async (event, context, callback) => {
   console.log("event: ", event);
+  console.log("hello world: ", event);
   const done = (err, res) =>
     callback(null, {
       statusCode: err ? "400" : "200",
