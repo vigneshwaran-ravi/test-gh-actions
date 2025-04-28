@@ -35,6 +35,9 @@ export const handler = async (event, context, callback) => {
   console.log("hello world: ", event);
   console.log("hello world: ", event);
   console.log("hello world: ", event);
+  console.log("hello world: ", event);
+  console.log("hello world: ", event);
+  console.log("hello world: ", event);
   const done = (err, res) =>
     callback(null, {
       statusCode: err ? "400" : "200",

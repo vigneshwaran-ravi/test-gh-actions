@@ -55,8 +55,10 @@ jobs:
               cd ..
             fi
             
-            # Create ZIP file
-            zip -r function.zip $dir/*
+            # Create ZIP file (changed to zip contents only)
+            cd $dir
+            zip -r ../function.zip ./*
+            cd ..
             
             # Update Lambda function
             aws lambda update-function-code \
