@@ -1,0 +1,17 @@
+{
+  "1": {
+    "Name": "nodejs-uuid",
+    "Layer version": "8",
+    "Version ARN": "arn:aws:lambda:us-east-1:521060283726:layer:nodejs-uuid:8"
+  },
+  "2": {
+    "Name": "nodejs-postgresql-client",
+    "Layer version": "2",
+    "Version ARN": "arn:aws:lambda:us-east-1:521060283726:layer:nodejs-postgresql-client:2"
+  },
+  "3": {
+    "Name": "nodejs-googlemaps",
+    "Layer version": "7",
+    "Version ARN": "arn:aws:lambda:us-east-1:521060283726:layer:nodejs-googlemaps:7"
+  }
+}
